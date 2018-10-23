@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        table{
+            border: 1px solid #ccc;
+        }
+        td{
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <!-- <form action="http://127.0.0.1:3000" method="post" enctype="multipart/form-data"> -->
+        <input type="text" name="user">
+        <input type="file" name="file" id="upload">
+        <button id="btn">提交</button>
+    <!-- </form> -->
+    <table>
+        <tr>
+            <td></td>
+        </tr>
+    </table>
+</body>
+</html>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+<script>
+    document.querySelector('#upload').addEventListener('change',function(e){
+        let jsonData;
+        console.log(e)
+        let fr = new FileReader()
+        fr.readAsText(e.target.files[0])
+        fr.onload = function(){
+            jsonData = JSON.parse(this.result)
+            console.log(jsonData)
+            let html = ''
+            for(let i in jsonData){
+                html+=`<tr><td><label><input type="checkbox" value="${i}" name="" id="">${i}</label></td><td><input type='text' /></td></tr>`
+            }
+            $('table').html(html)
+        }
+    },false)
+    let arr = []
+    $('#btn').click(function(){
+        $('table :checkbox:checked').each((k,v)=>{
+            $(v).parent().siblings().children('input').val()
+            $(v).val()
+            arr.push({
+                title:$(v).val(),
+                key:$(v).parent().siblings().children('input').val()
+            })
+        })
+        $.ajax({
+            url:'http://127.0.0.1:3000',
+            type:'post',
+            data:{
+                json:JSON.stringify(arr)
+            },
+            dataType:'json',
+            success:function(){
+
+            }
+        })
+    })
+</script>
