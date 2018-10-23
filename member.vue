@@ -13,9 +13,8 @@ export default {
     },
   data() {
     return {
-        tableTitle:[
-            //@tableTitle@
-        ]
+        tableTitle:[{"title":"1","key":"userId"},{"title":"2","key":"account"},{"title":"3","key":"name"},{"title":"4","key":"password"},{"title":"5","key":"roleId"},{"title":"6","key":"userStatus"},{"title":"7","key":"createTime"},{"title":"8","key":"roleName"}]
+        
     };
   },
   methods:{

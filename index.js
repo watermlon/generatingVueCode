@@ -21,11 +21,17 @@ app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 app.post('/',function(req,res){
     console.log(req.body.json)
-    fs.readFile('./member.vue',{encoding:'utf-8',flag:'r+'},function(err,data){
+    fs.readFile('./member.vue',{encoding:'utf8',flag:'r+'},function(err,data){
         if(err) {
             res.send(500)
         }
-        console.log(data.toString())
+        let fileStr = data.toString()
+        const strReg = /\/\/@tableTitle@/
+        fileStr = fileStr.replace(strReg,req.body.json)
+        console.log(fileStr)
+        fs.writeFile('./member.vue',fileStr,function(err){
+            console.log('写入成功')
+        })
     })
     // console.log(JSON.stringify(req.body.json))
     // res.redirect('http://127.0.0.1:5500/index.html')

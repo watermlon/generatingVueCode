@@ -46,12 +46,14 @@
     },false)
     let arr = []
     $('#btn').click(function(){
+        
         $('table :checkbox:checked').each((k,v)=>{
+            console.log($(v).parent().parent().siblings().children('input').val())
             $(v).parent().siblings().children('input').val()
             $(v).val()
             arr.push({
-                title:$(v).val(),
-                key:$(v).parent().siblings().children('input').val()
+                title:$(v).parent().parent().siblings().children('input').val(),
+                key:$(v).val()
             })
         })
         $.ajax({
