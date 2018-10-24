@@ -22,29 +22,29 @@ app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 app.post('/', function (req, res) {
     console.log(req.body.json)
-    fs.readFile('./member.vue', { encoding: 'utf8', flag: 'r+' }, function (err, data) {
+    fs.readFile('./member.vtpl', { encoding: 'utf8', flag: 'r+' }, function (err, data) {
         if (err) {
             res.send(500)
         }
         let fileStr = data.toString()
         const strReg = /\/\/@tableTitle@/
-        fileStr = fileStr.replace(strReg, req.body.json)
-        fs.writeFile(req.body.filePath+req.body.fileName, fileStr, function (err) {
-            if(err){
+        fileStr = fileStr.replace(strReg, JSON.stringify(req.body.json))
+        fs.writeFile(req.body.filePath + '/' + req.body.fileName, fileStr, function (err) {
+            if (err) {
                 res.send(err)
-            }else{
-                console.log('写入成功')
-            res.send('写入成功')
+            } else {
+                console.log(req.body.filePath + '/' + req.body.fileName + '写入成功')
+                res.send(req.body.filePath + '/' + req.body.fileName + '写入成功')
             }
-            
+
         })
     })
     // console.log(JSON.stringify(req.body.json))
     // res.redirect('http://127.0.0.1:5500/index.html')
 })
 function showLetter(callback) {
-    exec('wmic logicaldisk get caption', function(err, stdout, stderr) {
-        if(err || stderr) {
+    exec('wmic logicaldisk get caption', function (err, stdout, stderr) {
+        if (err || stderr) {
             console.log("root path open failed" + err + stderr);
             return;
         }
@@ -53,18 +53,18 @@ function showLetter(callback) {
 }
 app.post('/readFile', function (req, res) {
     const path = req.body.path
-    if(path==''){
-        showLetter(function(dir){
-            let str = dir.replace('Caption','')
+    if (path == '') {
+        showLetter(function (dir) {
+            let str = dir.replace('Caption', '')
             let arr = str.split(':')
             let strArr = []
             arr.forEach(v => {
-                strArr.push((v.replace(/\s*/g,""))+':/')
+                strArr.push((v.replace(/\s*/g, "")) + ':/')
             });
             strArr.pop()
             res.send(strArr)
         })
-        return 
+        return
     }
     fs.readdir(path, function (err, files) {
         if (err) {
