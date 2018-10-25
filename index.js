@@ -22,13 +22,59 @@ app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 app.post('/', function (req, res) {
     console.log(req.body.json)
-    fs.readFile('./member.vtpl', { encoding: 'utf8', flag: 'r+' }, function (err, data) {
+    fs.readFile('./template.vtpl', { encoding: 'utf8', flag: 'r+' }, function (err, data) {
         if (err) {
             res.send(500)
         }
         let fileStr = data.toString()
         const strReg = /\/\/@tableTitle@/
-        fileStr = fileStr.replace(strReg, JSON.stringify(req.body.json))
+        const postUrlReg = /\/\/@postUrl@/
+        let jsonData = req.body.json
+        let str = '['
+        req.body.json.forEach((v,k) => {
+            str+=`{title:"${v.title}",key:"${v.key}"`
+            if (v.render) {
+                // jsonData[k].render = '123'
+                str+= `,render:(h, params) => {
+                    return h("Button", {
+                        props: {
+                            type: "error",
+                            size: "small"
+                        },
+                        on: {
+                            click: () => {
+                                this.$Modal.confirm({
+                                    title: "确认删除这条数据吗？",
+                                    loading: true,
+                                    onOk: () => {
+                                        //TODO 在这里处理删除的逻辑
+                                        setTimeout(() => {
+                                            //关闭对话框
+                                            this.$Modal.remove();
+                                        }, 1000)
+                                    }
+                                });
+                            }
+                        }
+                    },
+                        "删除"
+                    )
+                }`
+            }
+            if(k==req.body.json.length-1){
+                str+=`}`
+            }else{
+                str+=`},`
+            }
+            
+        })
+        str+=']'
+        console.log('==========================')
+        console.log('json====>',jsonData)
+        console.log('==========================')
+        console.log(req.body.json)
+        fileStr = fileStr.replace(strReg, str)
+        fileStr = fileStr.replace(postUrlReg, `"${req.body.postUrl}"`)
         fs.writeFile(req.body.filePath + '/' + req.body.fileName, fileStr, function (err) {
             if (err) {
                 res.send(err)
@@ -39,8 +85,6 @@ app.post('/', function (req, res) {
 
         })
     })
-    // console.log(JSON.stringify(req.body.json))
-    // res.redirect('http://127.0.0.1:5500/index.html')
 })
 function showLetter(callback) {
     exec('wmic logicaldisk get caption', function (err, stdout, stderr) {
