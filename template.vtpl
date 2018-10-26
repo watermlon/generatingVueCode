@@ -2,23 +2,14 @@
 <div>
     <Card>
         <Form ref="formInline" :model="searchData" :rules="ruleInline" inline>
-            <FormItem>
-                <Input type="text" v-model="searchData.user" placeholder="Username">
-                    <span slot="prepend">查询条件1</span>
-                </Input>
-            </FormItem>
-            <FormItem>
-                <Input type="text" v-model="searchData.password" placeholder="Password">
-                    <span slot="prepend">查询条件1</span>
-                </Input>
-            </FormItem>
+            <!-- @searchDom@ -->
             <FormItem>
                 <Button type="primary" @click='searchBtn'>查询</Button>
             </FormItem>
         </Form>
     </Card>
     <Card style="margin-top:10px;">
-        <table-view :tableTitle='tableTitle' :postUrl='postUrl'></table-view>
+        <table-view ref='tableView' :tableTitle='tableTitle' :postUrl='postUrl'></table-view>
     </Card>
 </div>
 </template>
@@ -36,7 +27,9 @@ export default {
     };
   },
   methods:{
-      searchBtn(){},
+      searchBtn(){
+          this.$refs['tableView'].getData()
+      },
       //@methods@
   }
 };

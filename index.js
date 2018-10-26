@@ -21,20 +21,38 @@ app.all('*', function (req, res, next) {
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 app.post('/', function (req, res) {
-    console.log(req.body.json)
     fs.readFile('./template.vtpl', { encoding: 'utf8', flag: 'r+' }, function (err, data) {
         if (err) {
             res.send(500)
         }
+        //==生成搜索条件
+        const searchList = req.body.searchList
+        let searchDataDomStr = ''
+        let searchDataStr = '{'
+        searchList.forEach(v=>{
+            searchDataDomStr+=
+            `<FormItem>
+                <Input type="text" v-model="searchData.${v.key}" placeholder="${v.text}">
+                    <span slot="prepend">${v.text}</span>
+                </Input>
+            </FormItem>`
+            
+            searchDataStr += `${v.key}:'',`
+        })
+        searchDataStr+='}'
+        //====获取模板数据
         let fileStr = data.toString()
+        //==需要替换的正则
         const strReg = /\/\/@tableTitle@/
         const postUrlReg = /\/\/@postUrl@/
+        const searchBoxReg = /<!-- @searchDom@ -->/
+        const searchDataReg = /\/\/@serchData@/
         let jsonData = req.body.json
+        //生成表头
         let str = '['
         req.body.json.forEach((v,k) => {
             str+=`{title:"${v.title}",key:"${v.key}"`
             if (v.render) {
-                // jsonData[k].render = '123'
                 str+= `,render:(h, params) => {
                     return h("Button", {
                         props: {
@@ -69,12 +87,10 @@ app.post('/', function (req, res) {
             
         })
         str+=']'
-        console.log('==========================')
-        console.log('json====>',jsonData)
-        console.log('==========================')
-        console.log(req.body.json)
         fileStr = fileStr.replace(strReg, str)
         fileStr = fileStr.replace(postUrlReg, `"${req.body.postUrl}"`)
+        fileStr = fileStr.replace(searchBoxReg,searchDataDomStr)
+        fileStr = fileStr.replace(searchDataReg,searchDataStr)
         fs.writeFile(req.body.filePath + '/' + req.body.fileName, fileStr, function (err) {
             if (err) {
                 res.send(err)
